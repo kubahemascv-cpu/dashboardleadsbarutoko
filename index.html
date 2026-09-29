@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<title>Dashboard Manager — New Leads PIC</title>
+<meta name="theme-color" content="#1D4ED8">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Dashboard New Leads">
+<link rel="apple-touch-icon" href="icon-512.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F5F7FA;--card:#FFFFFF;--card2:#EFF6FF;--bdr:#E2E8F0;
+  --txt:#0F172A;--txt2:#334155;--mut:#64748B;
+  --pri:#3B82F6;--pri-d:#1D4ED8;--pri-l:#EFF6FF;
+  --grn:#16A34A;--grn-l:#F0FDF4;--grn-b:#BBF7D0;
+  --amb:#D97706;--amb-l:#FFFBEB;--amb-b:#FDE68A;
+  --red:#DC2626;--red-l:#FEF2F2;--red-b:#FECACA;
+  --shd:0 2px 10px rgba(15,23,42,.06);
+  --font:'Poppins',-apple-system,sans-serif;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--txt);min-height:100vh;-webkit-font-smoothing:antialiased}
+select,button{font-family:var(--font)}
+
+.topbar{background:linear-gradient(135deg,var(--pri),var(--pri-d));padding:16px 18px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(29,78,216,.25)}
+.tb-title{font-size:14px;font-weight:800;color:#fff}
+.tb-sub{font-size:10.5px;color:rgba(255,255,255,.75);margin-top:1px}
+
+.wrap{max-width:760px;margin:0 auto;padding:18px 16px 60px}
+
+.period-bar{display:flex;gap:8px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+.period-bar select{padding:9px 12px;border:1.5px solid var(--bdr);border-radius:10px;font-size:12px;font-weight:600;color:var(--txt2);background:var(--card)}
+.period-bar input[type=date]{padding:9px 10px;border:1.5px solid var(--bdr);border-radius:10px;font-size:11.5px;color:var(--txt2);background:var(--card)}
+
+.slbl{font-size:11px;font-weight:800;color:var(--txt2);text-transform:uppercase;letter-spacing:.04em;display:block;margin:20px 0 10px}
+.slbl:first-of-type{margin-top:0}
+
+.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px}
+.kpi-card{background:var(--card);border-radius:14px;padding:14px;box-shadow:var(--shd);border:1px solid var(--bdr);border-left:4px solid var(--bdr)}
+.kpi-card.good{border-left-color:var(--grn)}
+.kpi-card.warn{border-left-color:var(--amb)}
+.kpi-card.bad{border-left-color:var(--red)}
+.kpi-lbl{font-size:10px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.03em;margin-bottom:4px}
+.kpi-val{font-size:21px;font-weight:800;color:var(--txt);line-height:1.1}
+.kpi-sub{font-size:9.5px;color:var(--mut);margin-top:4px;line-height:1.5}
+.kpi-badge{display:inline-block;font-size:9px;font-weight:800;padding:2px 7px;border-radius:20px;margin-top:5px}
+.kpi-badge.good{background:var(--grn-l);color:var(--grn)}
+.kpi-badge.warn{background:var(--amb-l);color:var(--amb)}
+.kpi-badge.bad{background:var(--red-l);color:var(--red)}
+
+.chart-box{background:var(--card);border-radius:16px;padding:16px;box-shadow:var(--shd);border:1px solid var(--bdr);margin-bottom:14px}
+.chart-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.chart-title{font-size:12.5px;font-weight:800;color:var(--txt)}
+.chart-badge{font-size:10px;font-weight:700;color:var(--mut);background:var(--bg);padding:3px 9px;border-radius:20px}
+
+.advisor-panel{background:linear-gradient(180deg,var(--card2),var(--card) 60px);border-radius:16px;border:1px solid #D6E4FF;box-shadow:var(--shd);padding:16px;margin-bottom:14px}
+.advisor-hd{display:flex;gap:10px;align-items:center;margin-bottom:12px}
+.advisor-item{display:flex;gap:10px;padding:11px 12px;border-radius:10px;margin-bottom:8px;background:var(--card);border:1px solid var(--bdr);border-left:4px solid var(--bdr)}
+.advisor-item.pri-action{border-left-color:#0866FF;background:#F5F9FF}
+.advisor-item.pri-urgent{border-left-color:var(--red);background:var(--red-l)}
+.advisor-item.pri-warn{border-left-color:var(--amb);background:var(--amb-l)}
+.advisor-item.pri-good{border-left-color:var(--grn);background:var(--grn-l)}
+.advisor-item.pri-info{border-left-color:var(--mut);background:var(--bg)}
+
+.pareto-row{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.pareto-lbl{font-size:11px;font-weight:700;color:var(--txt2);width:110px;flex-shrink:0}
+.pareto-bar-bg{flex:1;height:16px;background:var(--bg);border-radius:8px;overflow:hidden}
+.pareto-bar-fill{height:100%;background:linear-gradient(90deg,var(--pri),var(--pri-d));border-radius:8px}
+.pareto-count{font-size:10.5px;font-weight:800;color:var(--txt2);width:34px;text-align:right;flex-shrink:0}
+
+.empty-state{text-align:center;padding:50px 20px;color:var(--mut)}
+.empty-state .ico{font-size:40px;margin-bottom:10px}
+.empty-state .msg{font-size:12.5px;line-height:1.6}
+
+.loading{text-align:center;padding:40px 20px;color:var(--mut);font-size:12px}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="tb-title">📊 Dashboard Manager — New Leads</div>
+  <div class="tb-sub">Performance PIC · Meta Ads</div>
+</header>
+
+<div class="wrap">
+  <div class="period-bar">
+    <select id="periodSelect" onchange="onPeriodChange()">
+      <option value="7">7 Hari Terakhir</option>
+      <option value="14" selected>14 Hari Terakhir</option>
+      <option value="30">30 Hari Terakhir</option>
+      <option value="thisweek">Minggu Ini</option>
+      <option value="month">Bulan Ini</option>
+      <option value="all">Semua Data</option>
+      <option value="custom">Custom Tanggal...</option>
+    </select>
+    <input type="date" id="dateFrom" style="display:none" onchange="onCustomDateChange()">
+    <input type="date" id="dateTo" style="display:none" onchange="onCustomDateChange()">
+  </div>
+
+  <div id="content">
+    <div class="loading">⏳ Memuat data...</div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// CONFIG — sama persis kayak Form PIC New Leads (baca dari
+// endpoint GET yang udah ada di Apps Script yang sama)
+// ══════════════════════════════════════════════════════
+const CFG = {
+  url: 'https://script.google.com/macros/s/AKfycbyeY1oqRxRtM_bF8Uwx2W9wUYfkPXpTla7SCeZ9bQZzUQPG7EVf_9_50RK_iqRToY6d/exec',
+  token: 'newleads'
+};
+
+let ALL_ROWS = [];
+
+function fmt(n){ return 'Rp ' + Math.round(n||0).toLocaleString('id-ID'); }
+function pctStr(v){ return v===null||v===undefined?'—':v+'%'; }
+function todayStr(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function dstr(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+
+// ══════════════════════════════════════════════════════
+// FETCH & PARSE
+// ══════════════════════════════════════════════════════
+async function loadData(){
+  try{
+    const url = CFG.url + '?token=' + encodeURIComponent(CFG.token);
+    const res = await fetch(url).then(r=>r.json());
+    if(!res.ok){
+      document.getElementById('content').innerHTML = '<div class="empty-state"><div class="ico">⚠️</div><div class="msg">Gagal ambil data: '+(res.error||'unknown error')+'</div></div>';
+      return;
+    }
+    ALL_ROWS = (res.rows||[]).map(parseRow).filter(r=>r.tanggal);
+    ALL_ROWS.sort((a,b)=>a.tanggal-b.tanggal);
+    renderAll();
+  }catch(err){
+    document.getElementById('content').innerHTML = '<div class="empty-state"><div class="ico">⚠️</div><div class="msg">Gagal konek ke sheet. Cek koneksi internet.<br><span style="font-size:10px;color:var(--mut)">'+err+'</span></div></div>';
+  }
+}
+
+function parseRow(r){
+  let tgl = r['Tanggal'];
+  let dateObj = null;
+  if(tgl){
+    if(typeof tgl === 'string'){
+      // ISO string dari JSON.stringify Date, atau "YYYY-MM-DD" polos dari <input type=date>
+      const d = new Date(tgl);
+      if(!isNaN(d)) dateObj = d;
+    } else if(tgl instanceof Date){
+      dateObj = tgl;
+    }
+  }
+  return {
+    tanggal: dateObj,
+    pic: r['PIC']||'',
+    newLead: +r['New Lead Masuk']||0,
+    terjawab: +r['Lead Terjawab']||0,
+    jawab5m: +r['Lead Terjawab <=5 Menit']||0,
+    terklasifikasi: +r['Lead Terklasifikasi']||0,
+    qualified: +r['Qualified Lead']||0,
+    hot: +r['HOT']||0, warm: +r['WARM']||0, low: +r['LOW']||0,
+    wajibFu: +r['Lead Wajib Follow Up']||0,
+    sudahFu: +r['Lead Sudah Follow Up']||0,
+    deal: +r['New Customer Deal']||0,
+    omzet: +r['Omzet New Traffic']||0,
+    lostLead: +r['Lost Lead']||0,
+    lostAlasan: +r['Lost dengan Alasan Lengkap']||0,
+    lostReason: r['Lost Reason Dominan']||'',
+    kendala: (r['Kendala Utama']||'').split(' — ')[0].trim(),
+    catatan: r['Catatan PIC']||'',
+  };
+}
+
+// ══════════════════════════════════════════════════════
+// PERIOD FILTER
+// ══════════════════════════════════════════════════════
+function onPeriodChange(){
+  const v = document.getElementById('periodSelect').value;
+  document.getElementById('dateFrom').style.display = v==='custom'?'inline-block':'none';
+  document.getElementById('dateTo').style.display = v==='custom'?'inline-block':'none';
+  renderAll();
+}
+function onCustomDateChange(){ renderAll(); }
+
+function getFilteredRows(){
+  const v = document.getElementById('periodSelect').value;
+  if(!ALL_ROWS.length) return [];
+  const maxDate = ALL_ROWS[ALL_ROWS.length-1].tanggal;
+  const minDate = ALL_ROWS[0].tanggal;
+
+  let from, to;
+  if(v==='all'){ from=minDate; to=maxDate; }
+  else if(v==='month'){
+    const now=new Date();
+    from=new Date(now.getFullYear(),now.getMonth(),1);
+    to=maxDate;
+  } else if(v==='thisweek'){
+    const now=new Date();
+    const day=now.getDay();
+    const diff=day===0?6:day-1;
+    from=new Date(now); from.setDate(from.getDate()-diff);
+    to=maxDate;
+  } else if(v==='custom'){
+    const fVal=document.getElementById('dateFrom').value;
+    const tVal=document.getElementById('dateTo').value;
+    from=fVal?new Date(fVal):minDate;
+    to=tVal?new Date(tVal):maxDate;
+  } else {
+    const days=parseInt(v,10);
+    to=maxDate;
+    from=new Date(to); from.setDate(from.getDate()-(days-1));
+  }
+  const fromKey=dstr(from), toKey=dstr(to);
+  return ALL_ROWS.filter(r=>{
+    const k=dstr(r.tanggal);
+    return k>=fromKey && k<=toKey;
+  });
+}
+
+// ══════════════════════════════════════════════════════
+// KPI COMPUTATION
+// ══════════════════════════════════════════════════════
+function computeKPIs(rows){
+  const s={newLead:0,terjawab:0,jawab5m:0,terklasifikasi:0,qualified:0,hot:0,warm:0,low:0,
+    wajibFu:0,sudahFu:0,deal:0,omzet:0,lostLead:0,lostAlasan:0};
+  rows.forEach(r=>{
+    s.newLead+=r.newLead; s.terjawab+=r.terjawab; s.jawab5m+=r.jawab5m;
+    s.terklasifikasi+=r.terklasifikasi; s.qualified+=r.qualified;
+    s.hot+=r.hot; s.warm+=r.warm; s.low+=r.low;
+    s.wajibFu+=r.wajibFu; s.sudahFu+=r.sudahFu;
+    s.deal+=r.deal; s.omzet+=r.omzet;
+    s.lostLead+=r.lostLead; s.lostAlasan+=r.lostAlasan;
+  });
+  return {
+    ...s,
+    chatTerjawab: s.newLead>0?+(s.terjawab/s.newLead*100).toFixed(1):null,
+    fastResponse: s.terjawab>0?+(s.jawab5m/s.terjawab*100).toFixed(1):null,
+    classificationRate: s.newLead>0?+(s.terklasifikasi/s.newLead*100).toFixed(1):null,
+    followUpRatio: s.wajibFu>0?+(s.sudahFu/s.wajibFu*100).toFixed(1):null,
+    closingRate: s.newLead>0?+(s.deal/s.newLead*100).toFixed(1):null,
+    lostReasonCompleteness: s.lostLead>0?+(s.lostAlasan/s.lostLead*100).toFixed(1):null,
+    aov: s.deal>0?Math.round(s.omzet/s.deal):null,
+    qualifiedRate: s.newLead>0?+(s.qualified/s.newLead*100).toFixed(1):null,
+  };
+}
+
+function zoneClass(val,red,green){
+  // red = ambang bawah zona merah (di bawahnya merah), green = ambang bawah zona hijau
+  if(val===null) return '';
+  if(val<red) return 'bad';
+  if(val<green) return 'warn';
+  return 'good';
+}
+
+// ══════════════════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════════════════
+function renderAll(){
+  const rows = getFilteredRows();
+  const content = document.getElementById('content');
+
+  if(!ALL_ROWS.length){
+    content.innerHTML = '<div class="empty-state"><div class="ico">📭</div><div class="msg">Belum ada data laporan sama sekali.<br>Data bakal muncul otomatis begitu PIC mulai submit form harian.</div></div>';
+    return;
+  }
+  if(!rows.length){
+    content.innerHTML = '<div class="empty-state"><div class="ico">📭</div><div class="msg">Gak ada data di periode ini.<br>Coba pilih periode lain.</div></div>';
+    return;
+  }
+
+  const k = computeKPIs(rows);
+
+  content.innerHTML = `
+    <span class="slbl">📊 7 KPI Utama</span>
+    <div class="kpi-grid" id="kpi-grid"></div>
+
+    <span class="slbl">📈 Tren Harian</span>
+    <div class="chart-box">
+      <div class="chart-hd">
+        <div class="chart-title">New Lead & Closing per Hari</div>
+        <span class="chart-badge">${rows.length} hari data</span>
+      </div>
+      <canvas id="chart-trend" style="min-height:240px"></canvas>
+    </div>
+
+    <span class="slbl">🧭 Kesimpulan & Opsi Tindakan</span>
+    <div class="advisor-panel">
+      <div class="advisor-hd">
+        <span style="font-size:20px">🎯</span>
+        <div>
+          <div style="font-size:12.5px;font-weight:800;color:var(--txt)">Diagnosa Otomatis</div>
+          <div style="font-size:10px;color:var(--mut)">Berdasarkan pola dari SOP CS Online</div>
+        </div>
+      </div>
+      <div id="advisor-items"></div>
+    </div>
+
+    <span class="slbl">⚠️ Kendala Paling Sering</span>
+    <div class="chart-box" id="pareto-box"></div>
+  `;
+
+  renderKPICards(k);
+  renderTrendChart(rows);
+  renderAdvisor(k, rows);
+  renderPareto(rows);
+}
+
+function renderKPICards(k){
+  const cards = [
+    {ico:'💬',lbl:'Chat Terjawab',val:pctStr(k.chatTerjawab),sub:k.terjawab+' / '+k.newLead+' new lead',cls:zoneClass(k.chatTerjawab,90,95),target:'≥95%'},
+    {ico:'⚡',lbl:'Fast Response ≤5m',val:pctStr(k.fastResponse),sub:k.jawab5m+' / '+k.terjawab+' terjawab',cls:zoneClass(k.fastResponse,80,90),target:'≥90%'},
+    {ico:'🏷️',lbl:'Classification Rate',val:pctStr(k.classificationRate),sub:k.terklasifikasi+' / '+k.newLead+' new lead',cls:zoneClass(k.classificationRate,90,95),target:'≥95%'},
+    {ico:'📞',lbl:'Follow Up Ratio',val:pctStr(k.followUpRatio),sub:k.sudahFu+' / '+k.wajibFu+' wajib FU',cls:zoneClass(k.followUpRatio,80,90),target:'≥90%'},
+    {ico:'✅',lbl:'Closing Rate New Lead',val:pctStr(k.closingRate),sub:k.deal+' / '+k.newLead+' new lead',cls:zoneClass(k.closingRate,15,20),target:'20-25%'},
+    {ico:'📋',lbl:'Lost Reason Completeness',val:pctStr(k.lostReasonCompleteness),sub:k.lostAlasan+' / '+k.lostLead+' lost',cls:zoneClass(k.lostReasonCompleteness,80,90),target:'≥90%'},
+    {ico:'💰',lbl:'AOV New Traffic',val:k.aov?fmt(k.aov):'—',sub:fmt(k.omzet)+' / '+k.deal+' deal',cls:'',target:'Pantau tren'},
+    {ico:'🎯',lbl:'Total Deal',val:k.deal.toLocaleString('id-ID'),sub:'Omzet: '+fmt(k.omzet),cls:'',target:''},
+  ];
+  document.getElementById('kpi-grid').innerHTML = cards.map(c=>`
+    <div class="kpi-card ${c.cls}">
+      <div class="kpi-lbl">${c.ico} ${c.lbl}</div>
+      <div class="kpi-val">${c.val}</div>
+      <div class="kpi-sub">${c.sub}</div>
+      ${c.target?`<span class="kpi-badge ${c.cls||'info'}">Target: ${c.target}</span>`:''}
+    </div>
+  `).join('');
+}
+
+let TREND_CHART = null;
+function renderTrendChart(rows){
+  if(TREND_CHART) TREND_CHART.destroy();
+  const labels = rows.map(r=>{
+    const d=r.tanggal;
+    return d.getDate()+'/'+(d.getMonth()+1);
+  });
+  const ctx = document.getElementById('chart-trend').getContext('2d');
+  TREND_CHART = new Chart(ctx,{
+    type:'bar',
+    data:{labels, datasets:[
+      {type:'bar',label:'New Lead Masuk',data:rows.map(r=>r.newLead),backgroundColor:'#93C5FD',borderRadius:4,order:2},
+      {type:'bar',label:'Deal',data:rows.map(r=>r.deal),backgroundColor:'#16A34A',borderRadius:4,order:2},
+      {type:'line',label:'Closing Rate %',data:rows.map(r=>r.newLead>0?+(r.deal/r.newLead*100).toFixed(1):0),borderColor:'#DC2626',borderWidth:2,pointRadius:3,tension:.3,yAxisID:'y1',order:1},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:9.5}}}},
+      scales:{
+        y:{beginAtZero:true,ticks:{font:{size:10}}},
+        y1:{beginAtZero:true,position:'right',grid:{drawOnChartArea:false},ticks:{font:{size:10},callback:v=>v+'%'}},
+        x:{ticks:{font:{size:9.5}}}
+      }}
+  });
+}
+
+// ── KESIMPULAN & OPSI TINDAKAN — 4 pola dari tabel "Cara Manager
+// Membaca Hasil" di SOP. PDF-nya kasih pola KUALITATIF ("lead banyak",
+// "qualified rendah", dst) tanpa angka pasti — jadi ambang batas
+// "rendah/tinggi/sehat" di bawah ini interpretasi saya sendiri,
+// nyambungin ke zona warna yang MEMANG eksplisit di PDF (Chat Terjawab,
+// Fast Response, Closing Rate). Qualified Rate gak punya zona resmi di
+// PDF, saya pakai <50%/>=70% sebagai ambang wajar.
+function renderAdvisor(k, rows){
+  const items=[];
+  const responseSehat = k.chatTerjawab!==null && k.fastResponse!==null && k.chatTerjawab>=95 && k.fastResponse>=90;
+  const responseRendah = (k.chatTerjawab!==null && k.chatTerjawab<90) || (k.fastResponse!==null && k.fastResponse<80);
+  const qualifiedRendah = k.qualifiedRate!==null && k.qualifiedRate<50;
+  const qualifiedTinggi = k.qualifiedRate!==null && k.qualifiedRate>=70;
+  const closingRendah = k.closingRate!==null && k.closingRate<15;
+  const closingSehat = k.closingRate!==null && k.closingRate>=20;
+
+  if(responseRendah){
+    items.push({pri:'urgent',ico:'🚨',title:'Kapasitas CS Bermasalah',
+      body:'Chat Terjawab '+pctStr(k.chatTerjawab)+' / Fast Response '+pctStr(k.fastResponse)+' — di bawah target. Jangan tambah beban lead dulu sebelum mastiin semua lead kejawab. Cek respon admin & jam padat chat.'});
+  }
+  if(responseSehat && qualifiedRendah){
+    items.push({pri:'warn',ico:'🔍',title:'Cek Kualitas Traffic Iklan',
+      body:'Respon udah sehat (Chat Terjawab '+pctStr(k.chatTerjawab)+', Fast Response '+pctStr(k.fastResponse)+'), tapi Qualified Rate cuma '+pctStr(k.qualifiedRate)+'. Kemungkinan targeting iklan kurang pas sama produk/area — cek kecocokan audience Meta Ads.'});
+  }
+  if(qualifiedTinggi && closingRendah){
+    items.push({pri:'urgent',ico:'📉',title:'Perbaiki Penawaran & Closing',
+      body:'Qualified Rate udah tinggi ('+pctStr(k.qualifiedRate)+') tapi Closing Rate cuma '+pctStr(k.closingRate)+' — leads yang MASUK udah bagus, masalahnya di cara nawarin/closing. Cek handling keberatan & alasan Lost yang paling sering.'});
+  }
+  if(closingSehat && responseSehat){
+    items.push({pri:'good',ico:'🚀',title:'PIC Mampu Nyerap Traffic',
+      body:'Closing Rate '+pctStr(k.closingRate)+' dan respon sehat — PIC mampu nanganin new traffic dengan baik. Volume lead bisa terus didorong selama kapasitas kejaga (pantau Chat Terjawab tiap nambah budget).'});
+  }
+  if(k.lostReasonCompleteness!==null && k.lostReasonCompleteness<80){
+    items.push({pri:'warn',ico:'📋',title:'Lost Reason Belum Lengkap',
+      body:'Cuma '+pctStr(k.lostReasonCompleteness)+' dari Lost Lead yang punya alasan jelas. Tanpa ini, susah bedain masalah CS vs kualitas traffic — pastiin tiap Lost diisi alasannya.'});
+  }
+  if(!items.length){
+    items.push({pri:'info',ico:'📊',title:'Semua Indikator dalam Rentang Normal',
+      body:'Gak ada pola darurat yang kedeteksi dari kombinasi metrik periode ini. Terus pantau tren harian.'});
+  }
+
+  document.getElementById('advisor-items').innerHTML = items.map(it=>`
+    <div class="advisor-item pri-${it.pri}">
+      <div style="font-size:17px;flex-shrink:0">${it.ico}</div>
+      <div>
+        <div style="font-size:12px;font-weight:800;color:var(--txt);margin-bottom:3px">${it.title}</div>
+        <div style="font-size:11px;color:var(--txt2);line-height:1.6">${it.body}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderPareto(rows){
+  const counts={};
+  rows.forEach(r=>{
+    if(r.kendala && r.kendala!=='Tidak ada kendala'){
+      counts[r.kendala]=(counts[r.kendala]||0)+1;
+    }
+  });
+  const entries=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  const box=document.getElementById('pareto-box');
+  if(!entries.length){
+    box.innerHTML='<div style="text-align:center;padding:20px;color:var(--mut);font-size:11.5px">Gak ada kendala tercatat di periode ini — semua hari lancar 🎉</div>';
+    return;
+  }
+  const max=entries[0][1];
+  box.innerHTML = entries.map(([label,count])=>`
+    <div class="pareto-row">
+      <div class="pareto-lbl">${label}</div>
+      <div class="pareto-bar-bg"><div class="pareto-bar-fill" style="width:${(count/max*100)}%"></div></div>
+      <div class="pareto-count">${count}×</div>
+    </div>
+  `).join('');
+}
+
+// ══════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════
+document.getElementById('dateFrom').value = todayStr();
+document.getElementById('dateTo').value = todayStr();
+loadData();
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){
+    navigator.serviceWorker.register('./sw.js')
+      .then(function(r){console.log('[SW] OK',r.scope);})
+      .catch(function(e){console.warn('[SW]',e);});
+  });
+}
+</script>
+</body>
+</html>

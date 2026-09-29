@@ -1,5 +1,5 @@
 // SW Dashboard Manager New Leads
-const CACHE = 'dashboard-newleads-v1';
+const CACHE = 'dashboard-newleads-v2';
 
 self.addEventListener('install', function (e) {
   e.waitUntil(

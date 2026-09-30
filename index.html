@@ -92,8 +92,10 @@ select,button{font-family:var(--font)}
 <div class="wrap">
   <div class="period-bar">
     <select id="periodSelect" onchange="onPeriodChange()">
+      <option value="1">Hari Ini</option>
+      <option value="3" selected>3 Hari Terakhir</option>
       <option value="7">7 Hari Terakhir</option>
-      <option value="14" selected>14 Hari Terakhir</option>
+      <option value="14">14 Hari Terakhir</option>
       <option value="30">30 Hari Terakhir</option>
       <option value="thisweek">Minggu Ini</option>
       <option value="month">Bulan Ini</option>

@@ -1,5 +1,5 @@
 // SW Dashboard Manager New Leads
-const CACHE = 'dashboard-newleads-v3';
+const CACHE = 'dashboard-newleads-v4';
 
 self.addEventListener('install', function (e) {
   e.waitUntil(
@@ -36,6 +36,27 @@ self.addEventListener('fetch', function (e) {
     return;
   }
 
+  // HTML/halaman utama: NETWORK-FIRST. Ini benerin masalah "harus hard
+  // refresh baru update kelihatan" — kalau cache-first, begitu ke-cache
+  // sekali, browser puas ambil dari situ terus, gak pernah ngecek versi
+  // baru. Refresh biasa sekarang selalu coba internet dulu (asal
+  // online), baru fallback ke cache kalau offline.
+  var isHTML = e.request.mode === 'navigate' || e.request.url.endsWith('.html') || e.request.url.endsWith('/');
+  if (isHTML) {
+    e.respondWith(
+      fetch(e.request).then(function (res) {
+        if (res && res.status === 200) {
+          caches.open(CACHE).then(function (c) { c.put(e.request, res.clone()); });
+        }
+        return res;
+      }).catch(function () {
+        return caches.match(e.request);
+      })
+    );
+    return;
+  }
+
+  // File statis lain (icon, manifest): cache-first tetap OK, jarang berubah.
   e.respondWith(
     caches.open(CACHE).then(function (c) {
       return c.match(e.request).then(function (r) {
